@@ -1,0 +1,87 @@
+defaults:
+  - _self_
+  - model: swin
+  - dataset: image
+
+general:
+  save_dir: logs/
+  project_name: semler
+
+trainer:
+  devices: 1
+  strategy: ddp
+  accelerator: gpu
+  max_epochs: 100
+  precision: 16
+  gradient_clip_val: 0.5
+  accumulate_grad_batches: 10
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  profiler: false
+
+training:
+  metric: validation/loss
+  seed: 333
+  debug: false
+  mode: min
+  pretrained: false 
+  balanced: true
+
+loss:
+  _target_: torch.nn.SmoothL1Loss
+  beta: 0.3
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1e-4
+  weight_decay: 1e-3
+
+scheduler:
+  obj:
+    _target_: torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+    T_0: 1000
+    T_mult: 1
+    eta_min: 1e-7
+  interval: step
+
+callbacks:
+  learning_rate_monitor:
+    _target_: lightning.pytorch.callbacks.LearningRateMonitor
+    logging_interval: step
+  early_stopping:
+    _target_: lightning.pytorch.callbacks.EarlyStopping
+    monitor: ${training.metric}
+    patience: 10
+    mode: ${training.mode}
+  model_checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    save_top_k: -1
+    auto_insert_metric_name: true
+    dirpath: saved_models/
+    monitor: validation/loss
+    mode: ${training.mode}
+    every_n_train_steps: 500
+    
+tb_logger:
+  _target_: lightning.pytorch.loggers.TensorBoardLogger
+  save_dir: ${general.save_dir}
+  default_hp_metric: ${training.metric}
+
+data: 
+  orig_dir: none
+  folder_path: /home/ubuntu/data/cycle_a4_11
+  labels_path: /home/ubuntu/data/leftFootMeasurements.parquet
+  channels: [JRP]
+  num_workers: 0 
+  batch_size: 8
+  width: 672
+  height: 672
+
+augmentation:
+  augs: 
+    - _target_: torchvision.transforms.ToTensor
+    - _target_: torchvision.transforms.Normalize
+      mean: [0.5012,]
+      std: [0.3081,]
+    - _target_: torchvision.transforms.Resize
+      size: ${data.height}

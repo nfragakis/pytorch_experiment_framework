@@ -1,0 +1,32 @@
+_target_: torchmultimodal.modules.late_fusion.LateFusion
+encoders:
+  _target_: torch.nn.ModuleDict
+  image:
+    _target_: timm.create_model
+    model_name: resnet50
+    pretrained: true
+    num_classes: 1
+    in_chans: 3
+  signal: 
+    _target_: tsai.models.InceptionTimePlus.InceptionTimePlus
+    c_in: 1
+    c_out: 1
+    seq_len: 224
+    ks: 48
+    depth: 8
+    conv_dropout: 0.1
+fusion_module:
+  _target_: torchmultimodal.modules.fusions..attention_fusion.AttentionFusionModdule
+  channel_to_encoder_dim:
+    image: 2048
+    signal: 224
+  encoding_projection_dim: 1024
+head_module:
+  _target_: torchmultimodal.modules.layers.mlp.MLP
+  in_dim: 1024
+  out_dim: 1
+  hidden_dims: [512, 256]
+  activation: 
+    _target_: torch.nn.ReLU
+  normalization:
+    _target_: torch.nn.BatchNorm1d

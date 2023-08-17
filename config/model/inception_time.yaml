@@ -1,0 +1,8 @@
+_target_: tsai.models.InceptionTimePlus.InceptionTimePlus
+c_in: 1
+c_out: 1
+seq_len: 672
+ks: 48
+depth: 24
+conv_dropout: 0.1
+y_range: [0, 1.8]

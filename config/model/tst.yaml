@@ -1,0 +1,9 @@
+_target_: tsai.models.TSTPlus.TSTPlus
+c_in: 1
+c_out: 1
+seq_len: 672
+attn_dropout: 0.1
+fc_dropout: 0.3
+n_layers: 4
+d_model: 512
+y_range: [0.2, 1.5]

@@ -1,0 +1,6 @@
+_target_: tsai.models.ResNetPlus.ResNetPlus
+c_in: 1
+c_out: 1
+seq_len: 672
+nf: 512 
+fc_dropout: 0.1

@@ -1,0 +1,6 @@
+_target_: timm.create_model
+model_name: vit_base_patch32_384
+pretrained: false
+num_classes: 1
+img_size: 672
+in_chans: 3
